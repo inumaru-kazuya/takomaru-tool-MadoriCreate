@@ -2,262 +2,544 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>タコまるの間取り図</title>
+<title>間取り生成ツール — TAKOMARU · §01</title>
+<link rel="stylesheet" href="colors_and_type.css">
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-    margin: 0; background: #f5f5f5; color: #222; line-height: 1.5;
-  }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  /* ブランドヘッダー */
-  .app-header {
-    margin: 0 0 22px;
-    padding: 14px 4px 12px;
-    position: relative;
-    border-bottom: 1px solid #e6e6e6;
-  }
-  .app-header::after {
-    content: "";
-    position: absolute;
-    left: 4px;
-    bottom: -2px;
-    width: 84px;
-    height: 3px;
-    background: linear-gradient(90deg, #1a4977, #5b8fc7);
-    border-radius: 2px;
-  }
-  .brand {
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "ヒラギノ明朝 ProN", "游明朝", serif;
-    font-size: 32px;
-    font-weight: 600;
     margin: 0;
-    letter-spacing: 2px;
-    color: #1a4977;
-    line-height: 1.2;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--jp-serif);
+    font-feature-settings: "palt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  .brand-mark {
-    display: inline-block;
-    color: #c95c5c;
-    font-style: normal;
-    margin-right: 2px;
-  }
-  .brand-suffix {
-    font-family: "Hiragino Sans", "Yu Gothic", "ヒラギノ角ゴ ProN", "游ゴシック", sans-serif;
-    font-size: 0.55em;
-    font-weight: 400;
-    color: #7a8090;
-    margin-left: 12px;
-    letter-spacing: 2px;
-  }
-  .layout { display: grid; grid-template-columns: 400px 1fr; gap: 16px; }
-  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
 
-  .panel { background: white; border-radius: 8px; border: 1px solid #e2e2e2; padding: 16px; }
-  h2 { font-size: 15px; margin: 0 0 8px; color: #333; }
-  h3 { font-size: 13px; margin: 14px 0 6px; color: #555; font-weight: 600; }
-  /* 入力セクション(数値・選択) */
-  .input-block {
-    margin: 0 0 12px;
-    padding: 10px 12px;
-    background: #eef4fb;
-    border-left: 3px solid #2c5aa0;
-    border-radius: 4px;
-  }
-  .input-block h3 {
-    margin: 0 0 6px;
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #2c5aa0;
-    text-transform: none;
-  }
-  .input-block .row { margin-bottom: 4px; }
-  .input-block .row:last-child { margin-bottom: 0; }
-  /* オプション選択セクション */
-  .options-block {
-    margin: 18px 0 0;
-    padding: 10px 12px;
-    background: #fcf6ee;
-    border-left: 3px solid #c08552;
-    border-radius: 4px;
-  }
-  .options-block h3 {
-    margin: 0 0 6px;
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #905522;
-  }
-  .options-block .options { padding-top: 0; border-top: none; }
-
-  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
-  label { font-size: 13px; }
-  input[type="number"], select {
-    padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px;
-    font-size: 13px; background: white;
-  }
-  input[type="number"] { width: 70px; }
-
-  .options {
-    display: grid; grid-template-columns: 1fr; gap: 2px;
-    border-top: 1px solid #eee; padding-top: 6px;
-  }
-  .opt-cat-header {
+  /* ── Sticky archive header ─────────────────────────────────────────── */
+  .archive-bar {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(245, 241, 232, 0.88);
+    padding: 14px 32px;
+    border-bottom: var(--hairline);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    font-family: var(--mono);
     font-size: 11px;
-    font-weight: 700;
-    color: #2c5aa0;
-    margin: 10px 0 2px;
-    padding: 3px 6px 3px 0;
-    border-bottom: 1px solid #d0dce8;
-    letter-spacing: 0.5px;
-    background: linear-gradient(to right, #f2f6fb, transparent);
+    letter-spacing: 0.18em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
   }
-  .opt-cat-header:first-child { margin-top: 4px; }
-  .floor-tools { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .flip-btn, .flip-v-btn {
-    padding: 4px 10px;
-    font-size: 11.5px;
-    margin-top: 0;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  .archive-bar .mid {
+    text-align: center; font-family: var(--serif); font-style: italic;
+    font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--ink-soft);
   }
-  .flip-btn:hover, .flip-v-btn:hover { background: #555; }
+  .archive-bar .right { text-align: right; }
+  .archive-bar a { color: inherit; text-decoration: none; border-bottom: 0.5px solid transparent; transition: border-color var(--dur-quick) var(--ease); }
+  .archive-bar a:hover { border-color: var(--ink-soft); }
+
+  /* ── App masthead ── slim band matching the original's footprint ─────────── */
+  .masthead {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 16px 14px;
+    border-bottom: var(--hairline);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+  }
+  .masthead .tako {
+    width: 44px; height: 44px; object-fit: contain;
+    transform: rotate(-4deg);
+    flex: 0 0 auto;
+  }
+  .masthead .title {
+    display: flex; align-items: baseline; gap: 14px;
+    flex: 1; min-width: 0;
+  }
+  .masthead h1 {
+    font-family: var(--serif); font-weight: 300; font-style: italic;
+    font-size: 30px; line-height: 1; letter-spacing: -0.01em;
+    margin: 0; color: var(--ink);
+    white-space: nowrap;
+  }
+  .masthead .jp {
+    font-family: var(--jp-serif); font-weight: 500;
+    font-size: 16px; color: var(--ink);
+    white-space: nowrap;
+  }
+  .masthead .eye {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sage-deep);
+    border-left: 0.5px solid var(--rule);
+    padding-left: 14px;
+  }
+  .masthead .colophon {
+    margin-left: auto;
+    font-family: var(--jp-serif); font-size: 11px;
+    color: var(--ink-soft);
+    text-align: right;
+    line-height: 1.55;
+    max-width: 340px;
+  }
+  .masthead .colophon .lead {
+    font-family: var(--serif); font-style: italic;
+    font-size: 12px; color: var(--ink-soft);
+    display: block;
+  }
+
+  /* ── Working area: input + output ──────────────────────────────────── */
+  .layout {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 16px;
+    min-height: calc(100vh - 220px);
+  }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; padding: 0 12px; } }
+
+  .panel { padding: 20px 16px 32px; }
+  .panel.input-panel {
+    background: transparent;
+    position: relative;
+    border-right: var(--hairline-soft);
+  }
+  .panel.output-panel {
+    background: transparent;
+  }
+
+  .panel-eye {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sage-deep);
+    display: flex; gap: 10px; align-items: baseline;
+    margin: 0 0 6px;
+  }
+  .panel-eye .num { color: var(--ink-soft); }
+  .panel h2 {
+    font-family: var(--serif); font-style: italic; font-weight: 300;
+    font-size: 44px; line-height: 1; letter-spacing: -0.01em;
+    margin: 0 0 4px; color: var(--ink);
+  }
+  .panel h2 + .jp-sub {
+    font-family: var(--jp-serif); font-size: 15px; font-weight: 500;
+    color: var(--ink-soft); margin-bottom: 24px;
+  }
+
+  /* ── Input blocks: paper field-sets with hairline divider ──────────── */
+  .input-block {
+    padding: 18px 0 4px;
+    border-top: var(--hairline-soft);
+    margin: 0;
+  }
+  .input-block:first-of-type { border-top: 0; padding-top: 4px; }
+  .input-block h3 {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .input-block h3 .jp {
+    font-family: var(--jp-serif); font-size: 14px; font-weight: 500;
+    letter-spacing: 0; text-transform: none; color: var(--ink);
+  }
+  .input-block h3 .note {
+    font-family: var(--jp-serif); font-size: 11px; font-weight: 400;
+    letter-spacing: 0; text-transform: none; color: var(--ink-soft);
+  }
+
+  .row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  label {
+    font-family: var(--jp-serif); font-size: 13px; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  input[type="number"], select {
+    padding: 5px 8px;
+    border: 0.5px solid var(--ink-soft);
+    border-radius: 0;
+    font-family: var(--mono); font-size: 12px;
+    background: var(--bg);
+    color: var(--ink);
+    transition: border-color var(--dur-quick) var(--ease), background var(--dur-quick) var(--ease);
+  }
+  input[type="number"]:focus, select:focus {
+    outline: none; border-color: var(--ink); background: #fff;
+  }
+  input[type="number"] { width: 72px; text-align: right; }
+  select { padding-right: 22px; }
+
+  /* ── Options grid ──────────────────────────────────────────────────── */
+  .options { display: block; }
+  .opt-cat-header {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage-deep);
+    margin: 16px 0 4px;
+    padding: 6px 0 4px;
+    border-top: var(--hairline-soft);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .opt-cat-header::after {
+    content: attr(data-page);
+    font-family: var(--serif); font-style: italic;
+    font-size: 13px; color: var(--ink-soft); letter-spacing: 0;
+  }
+  .opt-cat-header:first-child { border-top: 0; margin-top: 4px; }
+
   .opt-row {
-    display: grid; grid-template-columns: 80px 1fr auto;
-    gap: 6px; align-items: center; padding: 4px 0;
-    border-bottom: 1px solid #f0f0f0; font-size: 12.5px;
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 8px; align-items: center;
+    padding: 8px 0;
+    border-bottom: var(--hairline-soft);
+    font-family: var(--jp-serif);
+    font-size: 13px;
   }
-  .opt-name { color: #333; }
-  .opt-floors { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+  .opt-row:last-child { border-bottom: 0; }
+  .opt-name { color: var(--ink); }
+  .opt-floors { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .opt-floors label {
-    display: flex; gap: 2px; align-items: center;
-    font-size: 11.5px; color: #555; cursor: pointer;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.08em; color: var(--ink-soft);
+    cursor: pointer; gap: 4px;
   }
-  .opt-floors input { margin: 0; }
-  .opt-floors select { padding: 2px 4px; font-size: 11.5px; }
+  .opt-floors input { margin: 0; accent-color: var(--sage-deep); }
+  .opt-floors select { padding: 2px 5px; font-size: 10px; }
 
   .opt-status {
-    font-size: 10.5px; text-align: right;
-    white-space: nowrap; display: flex; gap: 3px;
-    align-items: center; min-width: 0;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.06em;
+    text-align: right; white-space: nowrap;
+    display: flex; gap: 4px; align-items: center; min-width: 0;
   }
-  .opt-status .ok    { color: #1e6b3a; font-weight: 600; }
-  .opt-status .ng    { color: #872020; font-weight: 600; }
-  .opt-status .warn  { color: #8a5a00; font-weight: 600; }
-  .opt-status .extra { color: #999; }
+  .opt-status .ok    { color: var(--sage-deep); font-weight: 500; }
+  .opt-status .ng    { color: var(--rust); font-weight: 500; }
+  .opt-status .warn  { color: var(--wood-deep); font-weight: 500; }
+  .opt-status .extra { color: var(--ink-soft); opacity: 0.7; }
 
+  /* ── Buttons (canonical tk-btn) ────────────────────────────────────── */
   button {
-    padding: 8px 14px; background: #2c5aa0; color: white;
-    border: none; border-radius: 4px; cursor: pointer;
-    font-size: 13.5px; margin-top: 12px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 18px;
+    border: 0.5px solid var(--ink);
+    border-radius: 0;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--dur-quick) var(--ease),
+                color var(--dur-quick) var(--ease),
+                transform var(--dur-quick) var(--ease),
+                box-shadow var(--dur) var(--ease),
+                border-color var(--dur-quick) var(--ease);
   }
-  button:hover { background: #1e3f73; }
-  button.secondary { background: #6c757d; }
-  button.secondary:hover { background: #555; }
-  button:disabled { background: #ccc; cursor: not-allowed; }
+  button:hover {
+    background: var(--wood-deep);
+    border-color: var(--wood-deep);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  button:disabled {
+    background: var(--paper); color: var(--ink-soft);
+    border-color: var(--rule); cursor: not-allowed;
+    transform: none; box-shadow: none;
+  }
+  button.secondary {
+    background: transparent; color: var(--ink); border-color: var(--ink);
+  }
+  button.secondary:hover {
+    background: var(--ink); color: var(--bg);
+    border-color: var(--ink); box-shadow: var(--shadow-sm);
+  }
+  button.ghost {
+    background: transparent; color: var(--ink-soft);
+    border-color: var(--rule);
+    padding: 8px 12px; font-size: 10px;
+  }
+  button.ghost:hover {
+    background: transparent; color: var(--ink);
+    border-color: var(--ink); box-shadow: none;
+  }
 
-  .score-info {
-    font-size: 12.5px; color: #444; margin: 0 0 10px;
-    padding: 8px 10px; background: #f0f5fa;
-    border-radius: 4px; border-left: 3px solid #2c5aa0;
+  #generateBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 18px 24px;
+    margin-top: 28px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
   }
-  .metric-row { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
-  .metric { padding: 2px 8px; border-radius: 12px; background: white; font-size: 11.5px; border: 1px solid #ddd; }
-  .metric.good { background: #e6f4ea; border-color: #b6dfc1; color: #1e6b3a; }
-  .metric.warn { background: #fff7e6; border-color: #f0d699; color: #8a5a00; }
-  .metric.bad  { background: #fdecec; border-color: #f3b6b6; color: #872020; }
-  .metric.dim  { opacity: 0.4; }
-  .metric .target { font-size: 90%; opacity: 0.65; margin-left: 3px; }
+  #generateBtn::after { content: " ↗"; letter-spacing: 0; }
+
+  /* ── Output messages ───────────────────────────────────────────────── */
+  .score-info {
+    margin: 0 0 20px; padding: 18px 20px;
+    background: var(--bg);
+    border: 0.5px solid var(--rule);
+    font-family: var(--jp-serif); font-size: 13px;
+    color: var(--ink); line-height: 1.75;
+  }
+  .metric-row {
+    display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .metric {
+    padding: 4px 10px;
+    background: var(--bg);
+    border: 0.5px solid var(--rule);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+  .metric.good {
+    background: #e6efdc;
+    border-color: #8aa372;
+    color: #2f4523;
+  }
+  .metric.warn {
+    background: #f5e6cb;
+    border-color: #c89a5a;
+    color: #6b4818;
+  }
+  .metric.bad  {
+    background: #f3d8cc;
+    border-color: #b35a3a;
+    color: #7a2d18;
+  }
+  .metric.dim  { opacity: 0.35; }
+  .metric .target { font-size: 95%; opacity: 0.7; margin-left: 4px; letter-spacing: 0; }
 
   .warnings {
-    margin: 0 0 10px; padding: 8px 10px;
-    background: #fff7e6; border-radius: 4px;
-    border-left: 3px solid #d6a000; font-size: 12.5px; color: #6a5000;
+    margin: 0 0 14px; padding: 12px 16px;
+    background: transparent;
+    border: 0.5px solid var(--wood-deep);
+    border-left: 2px solid var(--wood-deep);
+    font-family: var(--jp-serif); font-size: 12.5px;
+    line-height: 1.7; color: var(--wood-deep);
   }
   .err {
-    margin: 0 0 10px; padding: 12px;
-    background: #fdecec; border-radius: 4px;
-    border-left: 3px solid #c00; font-size: 13px; color: #800;
+    margin: 0 0 14px; padding: 14px 18px;
+    background: transparent;
+    border: 0.5px solid var(--rust);
+    border-left: 2px solid var(--rust);
+    font-family: var(--jp-serif); font-size: 13px;
+    line-height: 1.7; color: var(--rust);
   }
   .swap-hint {
-    margin: 0 0 10px; padding: 8px 10px;
-    background: #e7f0fa; border-radius: 4px;
-    border-left: 3px solid #2c5aa0; font-size: 12.5px; color: #1e3f73;
+    margin: 0 0 14px; padding: 12px 16px;
+    background: transparent;
+    border: 0.5px dashed var(--ink-soft);
+    font-family: var(--jp-serif); font-size: 12.5px;
+    line-height: 1.7; color: var(--ink-soft);
   }
   .swap-error {
-    margin: 0 0 10px; padding: 8px 10px;
-    background: #fdecec; border-radius: 4px;
-    border-left: 3px solid #c00; font-size: 12.5px; color: #872020;
+    margin: 0 0 14px; padding: 12px 16px;
+    border: 0.5px solid var(--rust);
+    border-left: 2px solid var(--rust);
+    font-family: var(--jp-serif); font-size: 12.5px;
+    color: var(--rust);
   }
 
-  .floor-block { margin-bottom: 12px; }
-  .svg-wrap { display: inline-block; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 8px; }
+  /* ── Floor plan canvas ─────────────────────────────────────────────── */
+  .floor-block { margin-bottom: 16px; }
+  .svg-wrap {
+    display: inline-block;
+    background: var(--bg);
+    border: 0.5px solid var(--ink);
+    padding: 14px;
+    position: relative;
+  }
+  .svg-wrap::before {
+    content: "FIG. " attr(data-fig);
+    position: absolute; left: 14px; top: -8px;
+    background: #efeadc; padding: 0 6px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.16em; color: var(--ink-soft);
+  }
   svg { display: block; }
-  svg text { font-family: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", sans-serif; user-select: none; pointer-events: none; }
+  svg text {
+    font-family: var(--jp-serif), system-ui, sans-serif;
+    user-select: none; pointer-events: none;
+  }
   svg line, svg polygon, svg circle { pointer-events: none; }
 
-  .room-rect { cursor: pointer; }
-  .room-rect:hover { stroke: #2c5aa0; stroke-width: 2; }
+  .room-rect { cursor: pointer; transition: stroke var(--dur-quick) var(--ease); }
+  .room-rect:hover { stroke: var(--ink); stroke-width: 1.6; }
   .edge-handle-v { cursor: ew-resize; fill: transparent; }
   .edge-handle-h { cursor: ns-resize; fill: transparent; }
-  .edge-handle-v:hover, .edge-handle-h:hover { fill: rgba(220, 60, 60, 0.35); }
-  .edge-handle-v.dragging, .edge-handle-h.dragging { fill: rgba(220, 60, 60, 0.55); }
+  .edge-handle-v:hover, .edge-handle-h:hover { fill: rgba(179, 90, 58, 0.32); }
+  .edge-handle-v.dragging, .edge-handle-h.dragging { fill: rgba(179, 90, 58, 0.5); }
   .kitchen-rot-btn { cursor: pointer; transition: fill 0.15s; }
-  .kitchen-rot-btn:hover { fill: #ffe4b3; }
-  .kitchen-rot-btn:active { fill: #ffcc80; }
+  .kitchen-rot-btn:hover { fill: #f3e3c5; }
+  .kitchen-rot-btn:active { fill: #e7c98c; }
+
+  /* ── Add-room form (inline panel) ──────────────────────────────────── */
   .add-room-form {
-    margin-top: 10px; padding: 10px 12px;
-    background: #f0f5fa; border: 1px solid #c8d7e8;
-    border-radius: 6px;
-    display: grid; grid-template-columns: auto 1fr; gap: 6px 10px;
-    font-size: 12.5px;
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: var(--bg);
+    border: 0.5px solid var(--ink);
+    border-radius: 0;
+    display: grid; grid-template-columns: auto 1fr; gap: 8px 14px;
+    font-family: var(--jp-serif); font-size: 13px;
   }
   .add-room-form .full { grid-column: 1 / 3; }
-  .add-room-form .actions-row { display: flex; gap: 8px; margin-top: 4px; }
-  .add-room-form button { margin-top: 0; padding: 6px 12px; font-size: 12.5px; }
-  .add-room-form .cancel-btn { background: #888; }
-  .add-clickable { cursor: pointer; text-decoration: underline; }
-  .add-clickable:hover { background: #fdecec; }
+  .add-room-form .actions-row { display: flex; gap: 8px; margin-top: 6px; }
+  .add-room-form button { margin-top: 0; padding: 8px 14px; font-size: 10px; }
+  .add-room-form .cancel-btn {
+    background: transparent; color: var(--ink-soft); border-color: var(--rule);
+  }
+  .add-room-form .cancel-btn:hover {
+    background: transparent; color: var(--ink); border-color: var(--ink);
+  }
+  .add-clickable {
+    cursor: pointer; text-decoration: none;
+    border-bottom: 0.5px dashed currentColor;
+    transition: color var(--dur-quick) var(--ease);
+  }
+  .add-clickable:hover { color: var(--rust); }
   .delete-room-btn {
-    margin-left: 8px; padding: 2px 8px;
-    background: #c33; color: white;
-    border: none; border-radius: 3px;
-    font-size: 11px; cursor: pointer;
+    margin-left: 8px; padding: 4px 10px;
+    background: transparent; color: var(--rust);
+    border: 0.5px solid var(--rust); border-radius: 0;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer;
   }
-  .delete-room-btn:hover { background: #911; }
-  .view-tabs { display: flex; gap: 4px; margin-top: 8px; margin-bottom: 8px; padding: 4px; background: #eee; border-radius: 6px; }
+  .delete-room-btn:hover {
+    background: var(--rust); color: var(--bg); transform: none; box-shadow: none;
+  }
+
+  /* ── View tabs (segmented hairline) ────────────────────────────────── */
+  .view-tabs {
+    display: flex; gap: 0;
+    margin: 0 0 14px;
+    border: 0.5px solid var(--ink);
+    background: var(--bg);
+  }
   .view-tabs button {
-    flex: 1; padding: 8px 12px; margin: 0;
-    background: transparent; color: #555;
-    border: none; border-radius: 4px; cursor: pointer;
-    font-size: 13px; font-weight: 500;
+    flex: 1; padding: 10px 14px; margin: 0;
+    background: transparent; color: var(--ink-soft);
+    border: 0; border-right: 0.5px solid var(--rule);
+    border-radius: 0;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    transition: background var(--dur-quick) var(--ease), color var(--dur-quick) var(--ease);
+    box-shadow: none;
   }
-  .view-tabs button:hover { background: #ddd; }
-  .view-tabs button.active { background: #2c5aa0; color: white; }
+  .view-tabs button:last-child { border-right: 0; }
+  .view-tabs button:hover {
+    background: rgba(26, 24, 22, 0.04); color: var(--ink);
+    transform: none; box-shadow: none;
+  }
+  .view-tabs button.active {
+    background: var(--ink); color: var(--bg);
+  }
 
-  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .empty { padding: 40px 20px; text-align: center; color: #888; font-size: 13px; }
+  .actions { display: flex; gap: 10px; margin: 8px 0 11px; flex-wrap: wrap; }
+  .actions button { padding: 10px 16px; font-size: 10px; }
 
-  .candidate-pager { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #555; margin: 0 0 8px; }
-  .edit-hint { font-size: 11.5px; color: #888; margin-top: 4px; font-style: italic; }
+  .empty {
+    padding: 80px 24px; text-align: center;
+    color: var(--ink-soft);
+    font-family: var(--jp-serif); font-size: 14px;
+    border: 0.5px dashed var(--rule);
+    background: var(--bg);
+  }
+  .empty .em-eye {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-soft);
+    display: block; margin-bottom: 12px;
+  }
+  .empty .em-jp { display: block; margin-bottom: 4px; }
+  .empty .em-en { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-soft); }
+
+  .candidate-pager {
+    display: flex; align-items: center; gap: 14px;
+    margin: 0 0 14px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.1em; color: var(--ink-soft);
+  }
+  .candidate-pager .name {
+    font-family: var(--jp-serif); font-size: 14px;
+    letter-spacing: 0; color: var(--ink); font-weight: 500;
+  }
+  .edit-hint {
+    font-family: var(--serif); font-style: italic; font-size: 12px;
+    color: var(--ink-soft); margin-top: 6px;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────────────── */
+  .colophon-foot {
+    padding: 32px; text-align: center;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .colophon-foot .sep { margin: 0 12px; opacity: 0.5; }
+
+  /* Scrollbars — quiet */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
+
+  /* Responsive */
+  @media (max-width: 980px) {
+    .masthead { flex-wrap: wrap; padding: 14px 12px; }
+    .masthead .colophon { margin-left: 0; flex-basis: 100%; text-align: left; padding-top: 6px; border-top: var(--hairline-soft); }
+    .panel.input-panel { border-right: 0; padding-right: 0; }
+    .panel { padding: 18px 0 28px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="app-header">
-    <h1 class="brand"><span class="brand-mark">タコ</span>まる<span class="brand-suffix">の間取り図</span></h1>
-  </header>
+<header class="archive-bar">
+  <div class="left">TAKOMARU&nbsp;·&nbsp;ARCHIVE</div>
+  <div class="mid">
+</div>
+  <div class="right">§ 02 · GENERATOR · LIVE</div>
+</header>
 
-  <div class="layout">
-    <div class="panel">
-      <h2>入力</h2>
+<section class="masthead">
+  <img class="tako" src="assets/takomaru.png" alt="タコまる">
+  <div class="title">
+    <h1>Floor Plan Generator</h1>
+    <div class="jp">間取り生成ツール</div>
+    <div class="eye">§ 02 · TOOLS / 道具</div>
+  </div>
+  <div class="colophon">an in-browser sketch of a house. 
+敷地条件と要件を入力し、間取りを生成して編集できます。</div>
+</section>
+
+<div class="layout">
+    <div class="panel input-panel">
+      <div class="panel-eye"><span class="num">A.</span> <span>INPUT · 入力</span></div>
+      <h2 style="font-size: 30px">Inputs</h2>
+      <div class="jp-sub">敷地と要件</div>
       <div class="input-block">
-        <h3>土地</h3>
+        <h3><span>S/01</span> <span class="jp">土地 / Site</span></h3>
         <div class="row"><label>横 <input type="number" id="landW" value="11" min="5" max="30" step="0.1"> m</label></div>
         <div class="row"><label>縦 <input type="number" id="landH" value="10" min="5" max="30" step="0.1"> m</label></div>
         <div class="row"><label>接道方向
@@ -282,7 +564,7 @@
       </div>
 
       <div class="input-block">
-        <h3>主要部屋の畳数</h3>
+        <h3><span>S/02</span> <span class="jp">主要部屋 / Rooms</span></h3>
         <div class="row"><label>LDK
           <select id="ldkSize">
             <option>12</option><option>14</option><option selected>16</option><option>18</option><option>20</option><option>24</option>
@@ -294,7 +576,7 @@
       </div>
 
       <div class="input-block">
-        <h3>建物配置 <span style="font-weight:normal;font-size:10.5px;color:#666;">(隣地境界から最低50cm)</span></h3>
+        <h3><span>S/03</span> <span class="jp">建物配置 / Placement</span> <span class="note">境界から最低50cm</span></h3>
         <div class="row"><label>縦
           <select id="bpV">
             <option value="north" selected>北寄せ</option>
@@ -312,7 +594,7 @@
       </div>
 
       <div class="input-block">
-        <h3>キッチン</h3>
+        <h3><span>S/04</span> <span class="jp">キッチン / Kitchen</span></h3>
         <div class="row"><label>有効幅
           <select id="kitchenWidth">
             <option>2400</option><option selected>2550</option><option>2700</option><option>3000</option>
@@ -328,39 +610,101 @@
         </label></div>
       </div>
 
-      <div class="options-block">
-        <h3>間取りオプション</h3>
+      <div class="input-block">
+        <h3><span>S/05</span> <span class="jp">間取りオプション / Programme</span></h3>
         <div class="options" id="optionsContainer"></div>
       </div>
 
-      <button id="generateBtn">間取りを生成</button>
+      <button id="generateBtn">間取りを生成 — GENERATE</button>
     </div>
 
-    <div class="panel">
-      <h2>出力</h2>
+    <div class="panel output-panel">
+      <div class="panel-eye"><span class="num">B.</span> <span>OUTPUT · 結果</span></div>
+      <h2 style="font-size: 4px">Drawings</h2>
+      <div class="jp-sub">候補と平面図</div>
       <div id="outputArea">
-        <div class="empty">「間取りを生成」を押すと、ここに間取り図が表示されます。</div>
+        <div class="empty">
+          <span class="em-eye">§ 01 · STAND BY</span>
+          <span class="em-jp">「間取りを生成」を押すと、ここに平面図が並びます。</span>
+          <span class="em-en">Press Generate to draft a plan.</span>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- 接道別テンプレート定義(別ファイルから読み込み) -->
+<footer class="colophon-foot">
+  TAKOMARU<span class="sep">·</span>ARCHIVE<span class="sep">·</span>2026<span class="sep">·</span>KYOTO<span class="sep">·</span>§ 01 GENERATOR
+</footer>
+
+<!-- 接道別テンプレート定義
+     実運用時は templates-south.js / templates-north.js / templates-east-west.js を
+     外部スクリプトとして読み込む。下のインラインブロックはデモ用フォールバック。 -->
 <script src="templates-south.js"></script>
 <script src="templates-north.js"></script>
 <script src="templates-east-west.js"></script>
 <script>
+// ── Inline demo template (south-facing) ─────────────────────────────────────
+window.TEMPLATES_SOUTH = window.TEMPLATES_SOUTH || [{
+    id: "S_demo_01",
+    name: "南接道 / コンパクト総二階",
+    approach: "S",
+    landRangeM: { minW: 9.5, maxW: 13.5, minH: 9, maxH: 12 },
+    landGridW: 10,
+    landGridH: 6,
+    variableRooms: [
+      { match: { type: "LDK", floor: 1 }, allowedTatami: [14, 16, 18] },
+      { match: { type: "寝室", role: "main" }, allowedTatami: [6, 7, 8] }
+    ],
+    rooms: [
+      { type: "玄関", floor: 1, x: 0, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "LDK",  floor: 1, x: 2, y: 0, w: 8, h: 4, tatami: 16 },
+      { type: "階段", floor: 1, x: 0, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "物入", floor: 1, x: 0, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "洗面LD", floor: 1, x: 2, y: 4, w: 3, h: 2, tatami: 3 },
+      { type: "風呂", floor: 1, x: 5, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "トイレ", floor: 1, x: 7, y: 4, w: 1, h: 2, tatami: 1 },
+      { type: "SC",   floor: 1, x: 8, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 2, x: 0, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "物入", floor: 2, x: 2, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "寝室", role: "main", floor: 2, x: 4, y: 0, w: 3, h: 4, tatami: 6 },
+      { type: "子供部屋", floor: 2, x: 7, y: 0, w: 3, h: 4, tatami: 6 },
+      { type: "階段", floor: 2, x: 0, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "廊下", floor: 2, x: 2, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "トイレ", floor: 2, x: 0, y: 4, w: 1, h: 2, tatami: 1 },
+      { type: "洗面", floor: 2, x: 1, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 2, x: 3, y: 4, w: 3, h: 2, tatami: 3 },
+      { type: "子供部屋", floor: 2, x: 6, y: 4, w: 4, h: 2, tatami: 4 }
+    ]
+  }];
+if (!window.TEMPLATES_NORTH) window.TEMPLATES_NORTH = [];
+if (!window.TEMPLATES_EAST_WEST) window.TEMPLATES_EAST_WEST = [];
+</script>
+<script>
 const GRID_PX = 36;
 const FLOOR_LABEL = { 1: "1F", 2: "2F" };
 
+// タコまる palette: warm paper tones with sage / wood tints
 const ROOM_COLORS = {
-  "LDK": "#e8f4ec", "玄関": "#f8eee0", "階段": "#eaeaea",
-  "風呂": "#e0eef9", "洗面": "#e0eef9", "洗面LD": "#e0eef9", "LD": "#e0eef9",
-  "トイレ": "#f3e8ee", "SC": "#f6f0e0", "土間": "#f0e6d2",
-  "WIC": "#f0eafa", "寝室": "#fef4d0", "子供部屋": "#fff0f3",
-  "和室": "#efe8d0", "ヌック": "#e8f4ec", "WS": "#e8eef6",
-  "ホール": "#fafafa", "廊下": "#fafafa", "物入": "#f5f5f5",
-  "吹抜":  "#dde4ec"
+  "LDK":     "#e6ead9", // sage tint — main living
+  "玄関":    "#ecdcc0", // wood tint — entry / cover
+  "階段":    "#e3ddd0", // paper-gray — circulation
+  "風呂":    "#dde2d0", // sage soft — water
+  "洗面":    "#dde2d0",
+  "洗面LD":  "#dde2d0",
+  "LD":      "#dde2d0",
+  "トイレ":  "#eed9cc", // rust soft — tile
+  "SC":      "#ece4d0", // paper — storage
+  "土間":    "#e6d8bf", // wood — earth floor
+  "WIC":     "#ece4d0",
+  "寝室":    "#e9d9b9", // wood — bedroom
+  "子供部屋": "#eed7c4",
+  "和室":    "#e6dec6", // tatami paper
+  "ヌック":  "#e6ead9",
+  "WS":      "#e6ead9",
+  "ホール":  "#f3eee0",
+  "廊下":    "#f3eee0",
+  "物入":    "#ece4d0",
+  "吹抜":    "#d6d2c0"  // dim paper — void
 };
 
 const REQUIRED_BASE = ["玄関", "階段", "LDK", "風呂", "トイレ"];
@@ -870,16 +1214,16 @@ function renderFloor(rooms, floor, gridW, gridH, scale=GRID_PX, interactive=fals
 
   let svg = `<svg width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}" xmlns="http://www.w3.org/2000/svg" data-floor="${floor}">`;
   // キャンバス背景
-  svg += `<rect x="0" y="0" width="${totalW}" height="${totalH}" fill="#f8f8f8"/>`;
-  // 階ラベル(青いバッジで目立たせる - PNG出力時にも分かりやすい)
-  const floorLabel = overlayMode ? "1F + 2F (重ね表示)" : `${FLOOR_LABEL[floor]} 平面図`;
-  const badgeW = overlayMode ? 150 : 100;
-  svg += `<rect x="20" y="8" width="${badgeW}" height="28" fill="#2c5aa0" rx="4"/>`;
-  svg += `<text x="${20 + badgeW/2}" y="27" text-anchor="middle" font-size="15" font-weight="bold" fill="white">${floorLabel}</text>`;
-  // 土地外周(実線・薄ベージュ)
-  svg += `<rect x="${d.landX}" y="${d.landY}" width="${d.landW_px}" height="${d.landH_px}" fill="#f4ede0" stroke="#988a64" stroke-width="2"/>`;
-  // 建物外周(破線)
-  svg += `<rect x="${padding}" y="${padding}" width="${w}" height="${h}" fill="white" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>`;
+  svg += `<rect x="0" y="0" width="${totalW}" height="${totalH}" fill="#faf8f3"/>`;
+  // 階ラベル(ink stamp)
+  const floorLabel = overlayMode ? "1F + 2F · OVERLAY" : `${FLOOR_LABEL[floor]} · PLAN`;
+  const badgeW = overlayMode ? 168 : 110;
+  svg += `<rect x="20" y="10" width="${badgeW}" height="24" fill="#1a1816" rx="0"/>`;
+  svg += `<text x="${20 + badgeW/2}" y="26" text-anchor="middle" font-size="11" font-weight="500" fill="#faf8f3" font-family="JetBrains Mono, monospace" letter-spacing="2">${floorLabel}</text>`;
+  // 土地外周(paper)
+  svg += `<rect x="${d.landX}" y="${d.landY}" width="${d.landW_px}" height="${d.landH_px}" fill="#f0eadb" stroke="#8a6740" stroke-width="1.5"/>`;
+  // 建物外周(hairline dashed)
+  svg += `<rect x="${padding}" y="${padding}" width="${w}" height="${h}" fill="#faf8f3" stroke="#1a1816" stroke-width="1" stroke-dasharray="5,3"/>`;
 
   // ゴースト表示(別の階の間取りを薄く重ねて表示)
   const isGhostMode = (ghostFloor !== null && ghostFloor !== floor);
@@ -890,10 +1234,10 @@ function renderFloor(rooms, floor, gridW, gridH, scale=GRID_PX, interactive=fals
       const gy = (gridH - r.y - r.h) * scale + padding;
       const grw = r.w * scale, grh = r.h * scale;
       const fill = ROOM_COLORS[r.type] || "#fff";
-      svg += `<rect x="${gx}" y="${gy}" width="${grw}" height="${grh}" fill="${fill}" stroke="#888" stroke-width="0.8" opacity="0.5" pointer-events="none"/>`;
+      svg += `<rect x="${gx}" y="${gy}" width="${grw}" height="${grh}" fill="${fill}" stroke="#8a6740" stroke-width="0.6" opacity="0.5" pointer-events="none"/>`;
       if (grw >= 50 && grh >= 28) {
         const label = (r.type === "寝室" && r.role === "main") ? "主寝室" : (OPTION_LABELS[r.type] || r.type);
-        svg += `<text x="${gx + grw/2}" y="${gy + grh/2 + 3}" text-anchor="middle" font-size="9" fill="#666" opacity="0.7" pointer-events="none">${label}</text>`;
+        svg += `<text x="${gx + grw/2}" y="${gy + grh/2 + 3}" text-anchor="middle" font-size="9" fill="#4a4640" opacity="0.7" pointer-events="none">${label}</text>`;
       }
     }
   }
@@ -921,25 +1265,25 @@ function renderFloor(rooms, floor, gridW, gridH, scale=GRID_PX, interactive=fals
     const isOOB = (r.x < 0 || r.x + r.w > gridW || r.y < 0 || r.y + r.h > gridH);
     const isOverlap = overlapIds.has(idx);
 
-    let stroke = "#666", sw = 1.2, dashAttr = "";
-    if (isOOB) { stroke = "#c33"; sw = 2; dashAttr = ` stroke-dasharray="4,3"`; }
-    else if (isOverlap) { stroke = "#d68a1a"; sw = 2; }
-    if (isSelected) { stroke = "#c33"; sw = 3; }
+    let stroke = "#4a4640", sw = 1.0, dashAttr = "";
+    if (isOOB) { stroke = "#b35a3a"; sw = 1.8; dashAttr = ` stroke-dasharray="4,3"`; }
+    else if (isOverlap) { stroke = "#8a6740"; sw = 1.8; }
+    if (isSelected) { stroke = "#b35a3a"; sw = 2.4; }
     // ゴースト表示中は手前の階を半透明にして下の階を透過
     const fillOpAttr = isGhostMode ? ` fill-opacity="0.55"` : "";
 
     svg += `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${dashAttr}${fillOpAttr} data-room-idx="${idx}" class="room-rect"/>`;
     if (isOOB || isOverlap) {
-      svg += `<text x="${x + rw - 6}" y="${y + 13}" text-anchor="end" font-size="13" fill="#c33" font-weight="bold">⚠</text>`;
+      svg += `<text x="${x + rw - 6}" y="${y + 13}" text-anchor="end" font-size="13" fill="#b35a3a" font-weight="bold">⚠</text>`;
     }
 
     if (r.type === "階段") {
       const cx = x + rw/2, cy = y + rh/2;
       for (let i = 0; i < 4; i++) {
         const ly = y + (rh / 4) * i;
-        svg += `<line x1="${x+4}" y1="${ly}" x2="${x+rw-4}" y2="${ly}" stroke="#888" stroke-width="0.8"/>`;
+        svg += `<line x1="${x+4}" y1="${ly}" x2="${x+rw-4}" y2="${ly}" stroke="#8a6740" stroke-width="0.7"/>`;
       }
-      svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#444">階段</text>`;
+      svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" fill="#1a1816">階段</text>`;
       continue;
     }
     // 玄関の▼マークは削除(回転や接道方向で位置が合わないため)
@@ -948,10 +1292,10 @@ function renderFloor(rooms, floor, gridW, gridH, scale=GRID_PX, interactive=fals
     const label = (r.type === "寝室" && r.role === "main") ? "主寝室" : (OPTION_LABELS[r.type] || r.type);
     const cx = x + rw/2, cy = y + rh/2;
     if (rw < 50 || rh < 30) {
-      svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="10" fill="#333">${label}</text>`;
+      svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="10" fill="#1a1816">${label}</text>`;
     } else {
-      svg += `<text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="12" fill="#222" font-weight="500">${label}</text>`;
-      svg += `<text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#555">${tatami}畳</text>`;
+      svg += `<text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="12" fill="#1a1816" font-weight="500">${label}</text>`;
+      svg += `<text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#4a4640" font-family="JetBrains Mono, monospace" letter-spacing="0.5">${tatami}畳</text>`;
     }
 
     // LDK の場合キッチンを内部に重ねて描画
@@ -993,10 +1337,10 @@ function renderFloor(rooms, floor, gridW, gridH, scale=GRID_PX, interactive=fals
   }
 
   const ccx = padding + w - 18, ccy = padding + h - 18;
-  svg += `<circle cx="${ccx}" cy="${ccy}" r="14" fill="white" stroke="#aaa" stroke-width="0.8"/>`;
-  svg += `<text x="${ccx}" y="${ccy-2}" text-anchor="middle" font-size="9" fill="#666">N</text>`;
-  svg += `<line x1="${ccx}" y1="${ccy+1}" x2="${ccx}" y2="${ccy+10}" stroke="#a33" stroke-width="1.5"/>`;
-  svg += `<polygon points="${ccx-3},${ccy-1} ${ccx+3},${ccy-1} ${ccx},${ccy-7}" fill="#a33"/>`;
+  svg += `<circle cx="${ccx}" cy="${ccy}" r="14" fill="#faf8f3" stroke="#1a1816" stroke-width="0.7"/>`;
+  svg += `<text x="${ccx}" y="${ccy-2}" text-anchor="middle" font-size="9" fill="#4a4640" font-family="JetBrains Mono, monospace" letter-spacing="1">N</text>`;
+  svg += `<line x1="${ccx}" y1="${ccy+1}" x2="${ccx}" y2="${ccy+10}" stroke="#b35a3a" stroke-width="1.4"/>`;
+  svg += `<polygon points="${ccx-3},${ccy-1} ${ccx+3},${ccy-1} ${ccx},${ccy-7}" fill="#b35a3a"/>`;
   svg += `</svg>`;
   return svg;
 }
@@ -1015,9 +1359,9 @@ function renderOverlayWalls(rooms, gridW, gridH, scale, padding) {
     const y = parseInt(parts[2], 10);
     const isMatch = walls1F.has(w);
     if (isMatch) matched++;
-    const color = isMatch ? "#2a8a3f" : "#c33";
+    const color = isMatch ? "#3d4a32" : "#b35a3a";
     const dash = isMatch ? "" : ` stroke-dasharray="4,2"`;
-    const sw = isMatch ? 2.4 : 2.6;
+    const sw = isMatch ? 2.2 : 2.4;
     if (type === "V") {
       const sx = x * scale + padding;
       const sy1 = (gridH - y - 1) * scale + padding;
@@ -1032,11 +1376,11 @@ function renderOverlayWalls(rooms, gridW, gridH, scale, padding) {
   }
   // 凡例
   svg += `<g transform="translate(${padding}, ${padding - 26})" pointer-events="none">`;
-  svg += `<rect x="0" y="0" width="220" height="22" fill="white" stroke="#aaa" stroke-width="0.5" opacity="0.95"/>`;
-  svg += `<line x1="6" y1="11" x2="22" y2="11" stroke="#2a8a3f" stroke-width="2.4"/>`;
-  svg += `<text x="26" y="14" font-size="10" fill="#333">2F壁が1Fに一致</text>`;
-  svg += `<line x1="116" y1="11" x2="132" y2="11" stroke="#c33" stroke-width="2.6" stroke-dasharray="4,2"/>`;
-  svg += `<text x="136" y="14" font-size="10" fill="#333">2F壁のみ</text>`;
+  svg += `<rect x="0" y="0" width="230" height="22" fill="#faf8f3" stroke="#1a1816" stroke-width="0.5" opacity="0.95"/>`;
+  svg += `<line x1="6" y1="11" x2="22" y2="11" stroke="#3d4a32" stroke-width="2.2"/>`;
+  svg += `<text x="26" y="14" font-size="10" fill="#1a1816" font-family="Noto Serif JP, serif">2F壁が1Fに一致</text>`;
+  svg += `<line x1="122" y1="11" x2="138" y2="11" stroke="#b35a3a" stroke-width="2.4" stroke-dasharray="4,2"/>`;
+  svg += `<text x="142" y="14" font-size="10" fill="#1a1816" font-family="Noto Serif JP, serif">2F壁のみ</text>`;
   svg += `</g>`;
   return svg;
 }
@@ -1077,16 +1421,16 @@ function renderKitchenInside(ldk, padding, gridH, scale, interactive) {
 
   let svg = '';
   svg += `<g transform="rotate(${rotation} ${svg_cx} ${svg_cy})">`;
-  svg += `<rect x="${svgX}" y="${svgY}" width="${sw}" height="${sh}" fill="#d8c89a" stroke="#705a2c" stroke-width="1.4" data-kitchen="1" style="cursor:move;"/>`;
+  svg += `<rect x="${svgX}" y="${svgY}" width="${sw}" height="${sh}" fill="#c69e6c" stroke="#3d2e18" stroke-width="1.2" data-kitchen="1" style="cursor:move;"/>`;
   // コンロシンボル(回転時もこの内部で描画されるため向き合う)
   for (let i = 1; i <= 3; i++) {
     const bx = svgX + (sw * i) / 4;
-    svg += `<circle cx="${bx}" cy="${svgY + sh / 2}" r="${Math.min(sh*0.25, 4)}" fill="none" stroke="#705a2c" stroke-width="0.8" pointer-events="none"/>`;
+    svg += `<circle cx="${bx}" cy="${svgY + sh / 2}" r="${Math.min(sh*0.25, 4)}" fill="none" stroke="#3d2e18" stroke-width="0.8" pointer-events="none"/>`;
   }
   // 作業者側の矢印(未回転状態の南側=SVG下方向、回転時もグループと一緒に回転する)
-  svg += `<polygon points="${svg_cx-5},${svgY+sh+2} ${svg_cx+5},${svgY+sh+2} ${svg_cx},${svgY+sh+9}" fill="#705a2c" pointer-events="none"/>`;
+  svg += `<polygon points="${svg_cx-5},${svgY+sh+2} ${svg_cx+5},${svgY+sh+2} ${svg_cx},${svgY+sh+9}" fill="#3d2e18" pointer-events="none"/>`;
   if (sw >= 60 && sh >= 14) {
-    svg += `<text x="${svg_cx}" y="${svgY + sh - 3}" text-anchor="middle" font-size="9" fill="#4a3517" font-weight="600" pointer-events="none">K ${k.width}</text>`;
+    svg += `<text x="${svg_cx}" y="${svgY + sh - 3}" text-anchor="middle" font-size="9" fill="#3d2e18" font-weight="600" font-family="JetBrains Mono, monospace" letter-spacing="0.5" pointer-events="none">K ${k.width}</text>`;
   }
   svg += `</g>`;
 
@@ -1117,7 +1461,7 @@ function renderKitchenRotateButton(ldk, padding, gridH, scale) {
   const btnSize = 20; // foreignObject の枠(小さめ)
   const fx = rotBtnCX - btnSize / 2;
   const fy = rotBtnCY - btnSize / 2;
-  const btnStyle = `box-sizing:border-box;width:100%;height:100%;border-radius:50%;background:#fff8ec;border:1.5px solid #705a2c;color:#705a2c;font-size:12px;font-weight:bold;cursor:pointer;padding:0;margin:0;line-height:1;display:flex;align-items:center;justify-content:center;font-family:sans-serif;`;
+  const btnStyle = `box-sizing:border-box;width:100%;height:100%;border-radius:50%;background:#faf8f3;border:1px solid #1a1816;color:#1a1816;font-size:12px;font-weight:500;cursor:pointer;padding:0;margin:0;line-height:1;display:flex;align-items:center;justify-content:center;font-family:JetBrains Mono, monospace;`;
   let svg = '';
   svg += `<foreignObject x="${fx}" y="${fy}" width="${btnSize}" height="${btnSize}" overflow="visible">`;
   svg += `<button xmlns="http://www.w3.org/1999/xhtml" type="button" data-kitchen-rotate="1" class="kitchen-rot-btn" style="${btnStyle}" onclick="window.__rotKitchen && window.__rotKitchen(event)" onmousedown="event.stopPropagation()">↻</button>`;
@@ -1134,39 +1478,39 @@ function renderDimensions(d, gridW, gridH, scale, selectedRoom, floor) {
   const lwm = d.landW_m.toFixed(1);
   const lhm = d.landH_m.toFixed(1);
   const lsY = d.landY + d.landH_px + 22;
-  svg += `<line x1="${d.landX}" y1="${lsY}" x2="${d.landX + d.landW_px}" y2="${lsY}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${d.landX}" y1="${lsY-4}" x2="${d.landX}" y2="${lsY+4}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${d.landX + d.landW_px}" y1="${lsY-4}" x2="${d.landX + d.landW_px}" y2="${lsY+4}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${d.landX}" y1="${d.landY + d.landH_px + 2}" x2="${d.landX}" y2="${lsY+5}" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2,2"/>`;
-  svg += `<line x1="${d.landX + d.landW_px}" y1="${d.landY + d.landH_px + 2}" x2="${d.landX + d.landW_px}" y2="${lsY+5}" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2,2"/>`;
-  svg += `<text x="${d.landX + d.landW_px/2}" y="${lsY + 14}" text-anchor="middle" font-size="11" fill="#7a6a3a" font-weight="600">土地 ${lwm} m</text>`;
+  svg += `<line x1="${d.landX}" y1="${lsY}" x2="${d.landX + d.landW_px}" y2="${lsY}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${d.landX}" y1="${lsY-4}" x2="${d.landX}" y2="${lsY+4}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${d.landX + d.landW_px}" y1="${lsY-4}" x2="${d.landX + d.landW_px}" y2="${lsY+4}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${d.landX}" y1="${d.landY + d.landH_px + 2}" x2="${d.landX}" y2="${lsY+5}" stroke="#d8cfbe" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+  svg += `<line x1="${d.landX + d.landW_px}" y1="${d.landY + d.landH_px + 2}" x2="${d.landX + d.landW_px}" y2="${lsY+5}" stroke="#d8cfbe" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+  svg += `<text x="${d.landX + d.landW_px/2}" y="${lsY + 14}" text-anchor="middle" font-size="11" fill="#8a6740" font-weight="500" font-family="JetBrains Mono, monospace" letter-spacing="1">L ${lwm} m</text>`;
 
   const lwX = d.landX - 22;
-  svg += `<line x1="${lwX}" y1="${d.landY}" x2="${lwX}" y2="${d.landY + d.landH_px}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${lwX-4}" y1="${d.landY}" x2="${lwX+4}" y2="${d.landY}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${lwX-4}" y1="${d.landY + d.landH_px}" x2="${lwX+4}" y2="${d.landY + d.landH_px}" stroke="#988a64" stroke-width="0.9"/>`;
-  svg += `<line x1="${d.landX - 2}" y1="${d.landY}" x2="${lwX-5}" y2="${d.landY}" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2,2"/>`;
-  svg += `<line x1="${d.landX - 2}" y1="${d.landY + d.landH_px}" x2="${lwX-5}" y2="${d.landY + d.landH_px}" stroke="#bbb" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+  svg += `<line x1="${lwX}" y1="${d.landY}" x2="${lwX}" y2="${d.landY + d.landH_px}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${lwX-4}" y1="${d.landY}" x2="${lwX+4}" y2="${d.landY}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${lwX-4}" y1="${d.landY + d.landH_px}" x2="${lwX+4}" y2="${d.landY + d.landH_px}" stroke="#8a6740" stroke-width="0.8"/>`;
+  svg += `<line x1="${d.landX - 2}" y1="${d.landY}" x2="${lwX-5}" y2="${d.landY}" stroke="#d8cfbe" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+  svg += `<line x1="${d.landX - 2}" y1="${d.landY + d.landH_px}" x2="${lwX-5}" y2="${d.landY + d.landH_px}" stroke="#d8cfbe" stroke-width="0.5" stroke-dasharray="2,2"/>`;
   const llcy = d.landY + d.landH_px/2 + 4;
-  svg += `<text x="${lwX - 8}" y="${llcy}" text-anchor="middle" font-size="11" fill="#7a6a3a" font-weight="600" transform="rotate(-90 ${lwX - 8} ${llcy})">土地 ${lhm} m</text>`;
+  svg += `<text x="${lwX - 8}" y="${llcy}" text-anchor="middle" font-size="11" fill="#8a6740" font-weight="500" font-family="JetBrains Mono, monospace" letter-spacing="1" transform="rotate(-90 ${lwX - 8} ${llcy})">L ${lhm} m</text>`;
 
   // 建物寸法(建物外周の少し外、土地枠との間に余裕がある場合のみ)
   if (d.landExtraY >= 26) {
     const bw = (gridW * 0.91).toFixed(2);
     const bsY = padding + h + 12;
-    svg += `<line x1="${padding}" y1="${bsY}" x2="${padding + w}" y2="${bsY}" stroke="#888" stroke-width="0.6"/>`;
-    svg += `<line x1="${padding}" y1="${bsY-3}" x2="${padding}" y2="${bsY+3}" stroke="#888" stroke-width="0.6"/>`;
-    svg += `<line x1="${padding + w}" y1="${bsY-3}" x2="${padding + w}" y2="${bsY+3}" stroke="#888" stroke-width="0.6"/>`;
-    svg += `<text x="${padding + w/2}" y="${bsY-4}" text-anchor="middle" font-size="9" fill="#888">建物 ${bw} m</text>`;
+    svg += `<line x1="${padding}" y1="${bsY}" x2="${padding + w}" y2="${bsY}" stroke="#4a4640" stroke-width="0.5"/>`;
+    svg += `<line x1="${padding}" y1="${bsY-3}" x2="${padding}" y2="${bsY+3}" stroke="#4a4640" stroke-width="0.5"/>`;
+    svg += `<line x1="${padding + w}" y1="${bsY-3}" x2="${padding + w}" y2="${bsY+3}" stroke="#4a4640" stroke-width="0.5"/>`;
+    svg += `<text x="${padding + w/2}" y="${bsY-4}" text-anchor="middle" font-size="9" fill="#4a4640" font-family="JetBrains Mono, monospace" letter-spacing="0.5">B ${bw} m</text>`;
   }
   if (d.landExtraX >= 26) {
     const bh = (gridH * 0.91).toFixed(2);
     const bwX = padding - 12;
-    svg += `<line x1="${bwX}" y1="${padding}" x2="${bwX}" y2="${padding + h}" stroke="#888" stroke-width="0.6"/>`;
-    svg += `<line x1="${bwX-3}" y1="${padding}" x2="${bwX+3}" y2="${padding}" stroke="#888" stroke-width="0.6"/>`;
-    svg += `<line x1="${bwX-3}" y1="${padding + h}" x2="${bwX+3}" y2="${padding + h}" stroke="#888" stroke-width="0.6"/>`;
+    svg += `<line x1="${bwX}" y1="${padding}" x2="${bwX}" y2="${padding + h}" stroke="#4a4640" stroke-width="0.5"/>`;
+    svg += `<line x1="${bwX-3}" y1="${padding}" x2="${bwX+3}" y2="${padding}" stroke="#4a4640" stroke-width="0.5"/>`;
+    svg += `<line x1="${bwX-3}" y1="${padding + h}" x2="${bwX+3}" y2="${padding + h}" stroke="#4a4640" stroke-width="0.5"/>`;
     const bcy = padding + h/2;
-    svg += `<text x="${bwX - 4}" y="${bcy}" text-anchor="middle" font-size="9" fill="#888" transform="rotate(-90 ${bwX - 4} ${bcy})">建物 ${bh} m</text>`;
+    svg += `<text x="${bwX - 4}" y="${bcy}" text-anchor="middle" font-size="9" fill="#4a4640" font-family="JetBrains Mono, monospace" letter-spacing="0.5" transform="rotate(-90 ${bwX - 4} ${bcy})">B ${bh} m</text>`;
   }
 
   // 選択中の部屋の寸法(建物外、土地枠の手前のバッファエリアに表示)
@@ -1180,21 +1524,21 @@ function renderDimensions(d, gridW, gridH, scale, selectedRoom, floor) {
     const y2 = (gridH - r.y) * scale + padding;
     // 部屋の幅: 建物外側(下、bufferの中ほど)
     const rsY = (d.landExtraY >= 50) ? padding + h + 32 : padding + h + 14;
-    svg += `<line x1="${x1}" y1="${y2}" x2="${x1}" y2="${rsY+4}" stroke="#c33" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    svg += `<line x1="${x2}" y1="${y2}" x2="${x2}" y2="${rsY+4}" stroke="#c33" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    svg += `<line x1="${x1}" y1="${rsY}" x2="${x2}" y2="${rsY}" stroke="#c33" stroke-width="1.3"/>`;
-    svg += `<line x1="${x1}" y1="${rsY-4}" x2="${x1}" y2="${rsY+4}" stroke="#c33" stroke-width="1.3"/>`;
-    svg += `<line x1="${x2}" y1="${rsY-4}" x2="${x2}" y2="${rsY+4}" stroke="#c33" stroke-width="1.3"/>`;
-    svg += `<text x="${(x1+x2)/2}" y="${rsY-5}" text-anchor="middle" font-size="11" fill="#c33" font-weight="700">${wm} m</text>`;
+    svg += `<line x1="${x1}" y1="${y2}" x2="${x1}" y2="${rsY+4}" stroke="#b35a3a" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    svg += `<line x1="${x2}" y1="${y2}" x2="${x2}" y2="${rsY+4}" stroke="#b35a3a" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    svg += `<line x1="${x1}" y1="${rsY}" x2="${x2}" y2="${rsY}" stroke="#b35a3a" stroke-width="1.3"/>`;
+    svg += `<line x1="${x1}" y1="${rsY-4}" x2="${x1}" y2="${rsY+4}" stroke="#b35a3a" stroke-width="1.3"/>`;
+    svg += `<line x1="${x2}" y1="${rsY-4}" x2="${x2}" y2="${rsY+4}" stroke="#b35a3a" stroke-width="1.3"/>`;
+    svg += `<text x="${(x1+x2)/2}" y="${rsY-5}" text-anchor="middle" font-size="11" fill="#b35a3a" font-weight="700">${wm} m</text>`;
     // 部屋の高さ: 建物外側(左、bufferの中ほど)
     const rwX = (d.landExtraX >= 50) ? padding - 32 : padding - 14;
-    svg += `<line x1="${x1}" y1="${y1}" x2="${rwX-4}" y2="${y1}" stroke="#c33" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    svg += `<line x1="${x1}" y1="${y2}" x2="${rwX-4}" y2="${y2}" stroke="#c33" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    svg += `<line x1="${rwX}" y1="${y1}" x2="${rwX}" y2="${y2}" stroke="#c33" stroke-width="1.3"/>`;
-    svg += `<line x1="${rwX-4}" y1="${y1}" x2="${rwX+4}" y2="${y1}" stroke="#c33" stroke-width="1.3"/>`;
-    svg += `<line x1="${rwX-4}" y1="${y2}" x2="${rwX+4}" y2="${y2}" stroke="#c33" stroke-width="1.3"/>`;
+    svg += `<line x1="${x1}" y1="${y1}" x2="${rwX-4}" y2="${y1}" stroke="#b35a3a" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    svg += `<line x1="${x1}" y1="${y2}" x2="${rwX-4}" y2="${y2}" stroke="#b35a3a" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    svg += `<line x1="${rwX}" y1="${y1}" x2="${rwX}" y2="${y2}" stroke="#b35a3a" stroke-width="1.3"/>`;
+    svg += `<line x1="${rwX-4}" y1="${y1}" x2="${rwX+4}" y2="${y1}" stroke="#b35a3a" stroke-width="1.3"/>`;
+    svg += `<line x1="${rwX-4}" y1="${y2}" x2="${rwX+4}" y2="${y2}" stroke="#b35a3a" stroke-width="1.3"/>`;
     const cyy = (y1+y2)/2 + 4;
-    svg += `<text x="${rwX - 8}" y="${cyy}" text-anchor="middle" font-size="11" fill="#c33" font-weight="700" transform="rotate(-90 ${rwX - 8} ${cyy})">${hm} m</text>`;
+    svg += `<text x="${rwX - 8}" y="${cyy}" text-anchor="middle" font-size="11" fill="#b35a3a" font-weight="700" transform="rotate(-90 ${rwX - 8} ${cyy})">${hm} m</text>`;
   }
   return svg;
 }
@@ -1547,7 +1891,7 @@ function renderOutput() {
   // === 上部固定エリア: 操作ボタン・タブ ===
   html += `<div class="actions">`;
   if (state.candidates.length > 1) html += `<button id="nextBtn" class="secondary">別案を見る</button>`;
-  html += `<button id="addRoomBtn" class="secondary" style="background:#2c8a4f;">+ 部屋を追加</button>`;
+  html += `<button id="addRoomBtn" class="secondary">+ 部屋を追加</button>`;
   html += `<button id="resetBtn" class="secondary">編集をリセット</button>`;
   html += `<button id="dlBtn">PNGで保存</button>`;
   html += `</div>`;
@@ -2053,17 +2397,17 @@ async function exportPNG() {
   const canvas = document.createElement("canvas");
   canvas.width = totalW; canvas.height = totalH;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, totalW, totalH);
-  ctx.fillStyle = "#222"; ctx.font = "bold 28px sans-serif";
+  ctx.fillStyle = "#faf8f3"; ctx.fillRect(0, 0, totalW, totalH);
+  ctx.fillStyle = "#1a1816"; ctx.font = "italic 300 32px 'Cormorant Garamond', serif";
   ctx.fillText(t.name, 40, 40);
-  ctx.font = "16px sans-serif"; ctx.fillStyle = "#666";
+  ctx.font = "13px 'JetBrains Mono', monospace"; ctx.fillStyle = "#4a4640";
   const choku = calcChokkaritsu(rooms, t.landGridW, t.landGridH);
   const ckTxt = choku ? `直下率: ${(choku.ratio*100).toFixed(1)}%` : "";
   ctx.fillText(`土地: ${state.lastInput.landWidthM}m × ${state.lastInput.landHeightM}m / ${ckTxt}`, 40, 65);
   const am = computeAreaMetrics(rooms);
   if (am) {
-    ctx.font = "14px sans-serif";
-    ctx.fillStyle = "#555";
+    ctx.font = "12px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#4a4640";
     const line = `LDK比率 ${(am.ldkRatio*100).toFixed(1)}% / 収納率 ${(am.storageRatio*100).toFixed(1)}% / 廊下率 ${(am.hallwayRatio*100).toFixed(1)}% / 有効率 ${(am.effectiveRatio*100).toFixed(1)}%`;
     ctx.fillText(line, 40, 90);
   }
@@ -2073,12 +2417,12 @@ async function exportPNG() {
     const floor = (i === 0) ? 1 : 2;
     const segY = startY + i * (labelH + oneH + 30);
     // キャンバス上に階ラベルを直接描画(SVGとは別に確実に表示)
-    ctx.fillStyle = "#2c5aa0";
+    ctx.fillStyle = "#1a1816";
     ctx.fillRect(40, segY, 180, labelH);
     ctx.fillStyle = "white";
-    ctx.font = "bold 26px sans-serif";
+    ctx.font = "500 22px 'JetBrains Mono', monospace";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(`${floor}F 平面図`, 56, segY + 34);
+    ctx.fillText(`${floor}F · PLAN`, 56, segY + 34);
     // SVG をラベルの下に描画
     const svgString = renderFloor(rooms, floor, t.landGridW, t.landGridH, scale, false, false);
     const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
@@ -2089,8 +2433,8 @@ async function exportPNG() {
       img.onerror = rej; img.src = url;
     });
   }
-  ctx.font = "12px sans-serif"; ctx.fillStyle = "#999";
-  ctx.fillText("Generated by 間取り図ツール (プロトタイプ) / 参考イメージ", 40, totalH - 20);
+  ctx.font = "10px 'JetBrains Mono', monospace"; ctx.fillStyle = "#4a4640";
+  ctx.fillText("TAKOMARU · ARCHIVE — § 01 GENERATOR — PROTOTYPE / 参考イメージ", 40, totalH - 20);
   canvas.toBlob(blob => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
