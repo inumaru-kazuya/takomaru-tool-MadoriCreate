@@ -362,7 +362,7 @@
   }
 
   /* ── Floor plan canvas ─────────────────────────────────────────────── */
-  .floor-block { margin-bottom: 16px; }
+  .floor-block { margin-bottom: 16px; max-width: 100%; overflow: auto; }
   .svg-wrap {
     display: inline-block;
     background: var(--bg);
@@ -370,6 +370,23 @@
     padding: 14px;
     position: relative;
   }
+  .zoom-ctrl {
+    display: inline-flex; gap: 0;
+    border: 0.5px solid var(--ink); border-radius: 2px;
+    margin-left: auto;
+    background: var(--bg);
+  }
+  .zoom-ctrl .zoom-btn, .zoom-ctrl .zoom-pct {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 6px 10px; font-family: var(--mono); font-size: 11px;
+    color: var(--ink); border-right: 0.5px solid var(--ink);
+    letter-spacing: 0.05em;
+  }
+  .zoom-ctrl .zoom-btn:last-child { border-right: 0; }
+  .zoom-ctrl .zoom-pct {
+    min-width: 52px; text-align: center; font-weight: 500;
+  }
+  .zoom-ctrl button:hover { background: rgba(0,0,0,0.04); }
   .svg-wrap::before {
     content: "FIG. " attr(data-fig);
     position: absolute; left: 14px; top: -8px;
@@ -710,6 +727,8 @@ if (!window.TEMPLATES_EAST_WEST) window.TEMPLATES_EAST_WEST = [];
 <script>
 const GRID_PX = 36;
 const MAX_FLOORS = 3;
+const ZOOM_MIN = 0.25, ZOOM_MAX = 3.0, ZOOM_STEP = 1.25;
+function currentScale() { return GRID_PX * (state.zoom || 1); }
 const FLOOR_LABEL = { 1: "1F", 2: "2F", 3: "3F" };
 
 // タコまる palette: warm paper tones with sage / wood tints
@@ -853,8 +872,30 @@ const state = {
   selectedRoomIdx: null, swapError: null,
   viewMode: "1F", // "1F" | "2F" | "overlay"
   buildingPosition: { v: "north", h: "west" },
-  addRoom: { open: false, type: "廊下", floor: 1, w: 1, h: 2 }
+  addRoom: { open: false, type: "廊下", floor: 1, w: 1, h: 2 },
+  zoom: 1.0 // 描画倍率(GRID_PX に掛かる)
 };
+
+// ============ ズーム制御 ============
+function setZoom(z) {
+  state.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+  renderOutput();
+}
+function zoomIn()  { setZoom(state.zoom * ZOOM_STEP); }
+function zoomOut() { setZoom(state.zoom / ZOOM_STEP); }
+function zoomReset() { setZoom(1.0); }
+// 表示中の SVG が「.floor-block」の利用可能幅に収まる倍率に自動調整
+function zoomFitWidth() {
+  if (!state.workingTemplate) return;
+  const t = state.workingTemplate;
+  const wrap = document.querySelector(".panel.output-panel");
+  if (!wrap) return;
+  const availW = Math.max(400, wrap.clientWidth - 60); // 60px padding/border 分を控除
+  // renderFloor の totalW = buildingW + padding*2; padding ≈ 30 + 4*scale + extents
+  // 概算: totalW ≈ gridW * scale + 200 と仮定して逆算
+  const target = (availW - 200) / t.landGridW;
+  setZoom(target / GRID_PX);
+}
 
 // 部屋追加時のデフォルトサイズ(グリッド)
 const DEFAULT_ROOM_SIZE = {
@@ -2277,6 +2318,14 @@ function renderOutput() {
   if (state.candidates.length > 1) html += `<button id="nextBtn" class="secondary">別案を見る</button>`;
   html += `<button id="addRoomBtn" class="secondary">+ 部屋を追加</button>`;
   html += `<button id="resetBtn" class="secondary">編集をリセット</button>`;
+  // ズーム制御
+  const zoomPct = Math.round((state.zoom || 1) * 100);
+  html += `<div class="zoom-ctrl">
+    <button id="zoomOutBtn" class="zoom-btn" title="縮小 (Ctrl + -)">−</button>
+    <button id="zoomResetBtn" class="zoom-pct" title="100%に戻す (Ctrl + 0)">${zoomPct}%</button>
+    <button id="zoomInBtn" class="zoom-btn" title="拡大 (Ctrl + +)">+</button>
+    <button id="zoomFitBtn" class="zoom-btn" title="幅に合わせる">フィット</button>
+  </div>`;
   html += `<button id="dlBtn">PNGで保存</button>`;
   html += `</div>`;
   // ビュータブ(間取り図の上) — 階数に応じて動的生成
@@ -2332,14 +2381,14 @@ function renderOutput() {
   // === 間取り図 ===
   if (state.viewMode === "overlay") {
     html += `<div class="floor-block">
-      <div class="svg-wrap">${renderFloor(rooms, 1, t.landGridW, t.landGridH, GRID_PX, true, true, null, tFloors)}</div>
+      <div class="svg-wrap">${renderFloor(rooms, 1, t.landGridW, t.landGridH, currentScale(), true, true, null, tFloors)}</div>
     </div>`;
   } else {
     const f = currentViewFloor;
     // 上階表示時は直下の階をゴーストで背景に表示
     const ghost = (f >= 2) ? f - 1 : null;
     html += `<div class="floor-block">
-      <div class="svg-wrap" id="svgWrap${f}">${renderFloor(rooms, f, t.landGridW, t.landGridH, GRID_PX, true, false, ghost, tFloors)}</div>
+      <div class="svg-wrap" id="svgWrap${f}">${renderFloor(rooms, f, t.landGridW, t.landGridH, currentScale(), true, false, ghost, tFloors)}</div>
       <div class="floor-tools">
         <button class="flip-btn" data-floor="${f}">↔ ${f}F 左右反転</button>
       </div>
@@ -2363,6 +2412,11 @@ function renderOutput() {
     updateOptionStatus();
   };
   document.getElementById("dlBtn").onclick = exportPNG;
+  // ズームボタン
+  const zOut = document.getElementById("zoomOutBtn");   if (zOut)  zOut.onclick  = zoomOut;
+  const zIn  = document.getElementById("zoomInBtn");    if (zIn)   zIn.onclick   = zoomIn;
+  const zRst = document.getElementById("zoomResetBtn"); if (zRst)  zRst.onclick  = zoomReset;
+  const zFit = document.getElementById("zoomFitBtn");   if (zFit)  zFit.onclick  = zoomFitWidth;
   // 部屋追加ボタン
   const arb = document.getElementById("addRoomBtn");
   if (arb) arb.onclick = () => {
@@ -2471,8 +2525,9 @@ function onRoomMouseMove(evt) {
   if (roomDragState.moved) {
     // 自由配置モード: 部屋を自由に移動。他部屋には影響しない。1/4グリッド(22.75cm)単位
     const SNAP = 4;
-    const dGridX = Math.round(dx / GRID_PX * SNAP) / SNAP;
-    const dGridY = -Math.round(dy / GRID_PX * SNAP) / SNAP;
+    const _sc = currentScale();
+    const dGridX = Math.round(dx / _sc * SNAP) / SNAP;
+    const dGridY = -Math.round(dy / _sc * SNAP) / SNAP;
     const next = roomDragState.initialRooms.map(r => ({ ...r }));
     const target = next[roomDragState.startIdx];
     target.x = target.x + dGridX;
@@ -2570,9 +2625,10 @@ function onKitchenMouseMove(evt) {
   if (!ldk || !ldk.kitchen) return;
   const dx = evt.clientX - kitchenDragState.startX;
   const dy = evt.clientY - kitchenDragState.startY;
-  // ピクセル → mm (1 grid = 910mm = GRID_PX px)
-  const dx_mm = dx * 910 / GRID_PX;
-  const dy_mm = -dy * 910 / GRID_PX; // SVG y は下が+
+  // ピクセル → mm (1 grid = 910mm)。ズーム倍率を考慮
+  const _sc = currentScale();
+  const dx_mm = dx * 910 / _sc;
+  const dy_mm = -dy * 910 / _sc; // SVG y は下が+
   ldk.kitchen.x_mm = kitchenDragState.initialX + dx_mm;
   ldk.kitchen.y_mm = kitchenDragState.initialY + dy_mm;
   renderOutput();
@@ -2669,10 +2725,11 @@ function onEdgeMouseMove(evt) {
   // 1/4 グリッド (22.75cm) 単位に丸める
   const SNAP = 4;
   let dGrid;
-  if (e.side === "east")  dGrid =  Math.round(dx / GRID_PX * SNAP) / SNAP;
-  else if (e.side === "west")  dGrid = -Math.round(dx / GRID_PX * SNAP) / SNAP;
-  else if (e.side === "north") dGrid = -Math.round(dy / GRID_PX * SNAP) / SNAP;
-  else if (e.side === "south") dGrid =  Math.round(dy / GRID_PX * SNAP) / SNAP;
+  const _sc = currentScale();
+  if (e.side === "east")  dGrid =  Math.round(dx / _sc * SNAP) / SNAP;
+  else if (e.side === "west")  dGrid = -Math.round(dx / _sc * SNAP) / SNAP;
+  else if (e.side === "north") dGrid = -Math.round(dy / _sc * SNAP) / SNAP;
+  else if (e.side === "south") dGrid =  Math.round(dy / _sc * SNAP) / SNAP;
   if (dGrid === 0) {
     state.workingRooms = initialRooms.map(r => ({ ...r }));
     renderOutput(); updateOptionStatus(); return;
@@ -2851,8 +2908,14 @@ if (floorCountEl) floorCountEl.addEventListener("change", () => {
   renderOptionsUI();
 });
 
-// Delete / Backspace キーで選択中の部屋を削除
+// Delete / Backspace キーで選択中の部屋を削除 + ズームショートカット
 document.addEventListener("keydown", (e) => {
+  // ズーム: Ctrl/Cmd + (+/-/0) — どこでも有効
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomIn(); return; }
+    if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomOut(); return; }
+    if (e.key === "0")                  { e.preventDefault(); zoomReset(); return; }
+  }
   if (e.key !== "Delete" && e.key !== "Backspace") return;
   // 入力欄でのタイピング中は削除を発動しない
   const target = e.target;
