@@ -132,5 +132,114 @@ window.TEMPLATES_EAST_WEST = [
       { match: { type: "LDK", floor: 1 }, allowedTatami: [16, 18, 20] },
       { match: { type: "寝室", floor: 2, role: "main" }, allowedTatami: [6, 7, 8] }
     ]
+  },
+  // -------- E_1F_01: 平屋 / 東接道 (西接道版は自動ミラー) --------
+  {
+    id: "E_1F_01", name: "東接道 平屋(LDK西面+東玄関)",
+    floors: 1,
+    landGridW: 10, landGridH: 8,
+    landRangeM: { minW: 9.0, maxW: 14.0, minH: 7.0, maxH: 12.0 },
+    approach: "E",
+    rooms: [
+      // 東側(x=8-9): 玄関ゾーン
+      { type: "SC",   floor: 1, x: 8, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "玄関", floor: 1, x: 8, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "トイレ", floor: 1, x: 8, y: 4, w: 2, h: 1, tatami: 1 },
+      { type: "風呂", floor: 1, x: 8, y: 5, w: 2, h: 2, tatami: 2 },
+      { type: "洗面", floor: 1, x: 8, y: 7, w: 2, h: 1, tatami: 1 },
+      // 中央(x=4-7)
+      { type: "ホール", floor: 1, x: 6, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "廊下", floor: 1, x: 6, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 1, x: 6, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "物入", floor: 1, x: 6, y: 0, w: 2, h: 2, tatami: 2 },
+      // 西側(x=0-5): LDK と 寝室
+      { type: "LDK",  floor: 1, x: 0, y: 0, w: 6, h: 5, tatami: 15 },
+      { type: "寝室", floor: 1, x: 0, y: 5, w: 6, h: 3, tatami: 9, role: "main" }
+    ],
+    variableRooms: [
+      { match: { type: "LDK", floor: 1 }, allowedTatami: [14, 16, 18] },
+      { match: { type: "寝室", floor: 1, role: "main" }, allowedTatami: [6, 7, 8, 10] }
+    ]
+  },
+  // -------- E_3F_01: 3階建て / 東接道 --------
+  {
+    id: "E_3F_01", name: "東接道 3階建(狭小地)",
+    floors: 3,
+    landGridW: 8, landGridH: 8,
+    landRangeM: { minW: 7.0, maxW: 11.0, minH: 7.0, maxH: 11.0 },
+    approach: "E",
+    rooms: [
+      // 1F: 東玄関+水回り
+      { type: "和室", floor: 1, x: 0, y: 0, w: 4, h: 4, tatami: 8 },
+      { type: "土間", floor: 1, x: 0, y: 4, w: 4, h: 4, tatami: 8 },
+      { type: "洗面", floor: 1, x: 4, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "階段", floor: 1, x: 4, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "廊下", floor: 1, x: 4, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "ホール", floor: 1, x: 4, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "トイレ", floor: 1, x: 6, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "風呂", floor: 1, x: 6, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "SC",   floor: 1, x: 6, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "玄関", floor: 1, x: 6, y: 6, w: 2, h: 2, tatami: 2 },
+      // 2F: LDK
+      { type: "LDK",  floor: 2, x: 0, y: 0, w: 4, h: 8, tatami: 16 },
+      { type: "トイレ", floor: 2, x: 4, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "階段", floor: 2, x: 4, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "洗面", floor: 2, x: 4, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "廊下", floor: 2, x: 4, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "WS",   floor: 2, x: 6, y: 0, w: 2, h: 4, tatami: 4 },
+      { type: "WIC",  floor: 2, x: 6, y: 4, w: 2, h: 4, tatami: 4 },
+      // 3F: 寝室階
+      { type: "寝室", floor: 3, x: 0, y: 0, w: 4, h: 4, tatami: 8, role: "main" },
+      { type: "子供部屋", floor: 3, x: 0, y: 4, w: 4, h: 4, tatami: 8 },
+      { type: "トイレ", floor: 3, x: 4, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "階段", floor: 3, x: 4, y: 2, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 3, x: 4, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "廊下", floor: 3, x: 4, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "子供部屋", floor: 3, x: 6, y: 0, w: 2, h: 8, tatami: 8 }
+    ],
+    variableRooms: [
+      { match: { type: "LDK", floor: 2 }, allowedTatami: [14, 16, 18] },
+      { match: { type: "寝室", floor: 3, role: "main" }, allowedTatami: [6, 7, 8] }
+    ]
+  },
+  // -------- E_CY_01: 中庭付き吹抜 / 東接道 / 2F --------
+  {
+    id: "E_CY_01", name: "東接道 中庭付き2F(吹抜中庭)",
+    floors: 2,
+    landGridW: 10, landGridH: 10,
+    landRangeM: { minW: 9.0, maxW: 14.0, minH: 9.0, maxH: 14.0 },
+    approach: "E",
+    rooms: [
+      // 1F south: LDK + 玄関ゾーン
+      { type: "LDK",  floor: 1, x: 0, y: 0, w: 8, h: 4, tatami: 16 },
+      { type: "玄関", floor: 1, x: 8, y: 0, w: 2, h: 2, tatami: 2 },
+      { type: "SC",   floor: 1, x: 8, y: 2, w: 2, h: 2, tatami: 2 },
+      // 1F middle: 中庭(コの字状) + 動線
+      { type: "中庭", floor: 1, x: 0, y: 4, w: 6, h: 2 },
+      { type: "階段", floor: 1, x: 6, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "ホール", floor: 1, x: 8, y: 4, w: 2, h: 2, tatami: 2 },
+      // 1F north: 和室 + 水回り
+      { type: "和室", floor: 1, x: 0, y: 6, w: 6, h: 4, tatami: 12 },
+      { type: "洗面", floor: 1, x: 6, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "風呂", floor: 1, x: 8, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "トイレ", floor: 1, x: 6, y: 8, w: 2, h: 1, tatami: 1 },
+      { type: "WIC",   floor: 1, x: 8, y: 8, w: 2, h: 2, tatami: 2 },
+      { type: "物入",  floor: 1, x: 6, y: 9, w: 2, h: 1, tatami: 1 },
+      // 2F: 中庭の上は吹抜(開放) + 寝室+子供部屋
+      { type: "寝室", floor: 2, x: 0, y: 0, w: 4, h: 4, tatami: 8, role: "main" },
+      { type: "子供部屋", floor: 2, x: 4, y: 0, w: 6, h: 4, tatami: 12 },
+      // 中庭の真上は吹抜にし、オーバーハング警告を出さない
+      { type: "吹抜", floor: 2, x: 0, y: 4, w: 6, h: 2, tatami: 0 },
+      { type: "階段", floor: 2, x: 6, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 2, x: 8, y: 4, w: 2, h: 2, tatami: 2 },
+      { type: "子供部屋", floor: 2, x: 0, y: 6, w: 6, h: 4, tatami: 12 },
+      { type: "トイレ", floor: 2, x: 6, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "洗面", floor: 2, x: 8, y: 6, w: 2, h: 2, tatami: 2 },
+      { type: "WIC",  floor: 2, x: 6, y: 8, w: 4, h: 2, tatami: 4 }
+    ],
+    variableRooms: [
+      { match: { type: "LDK", floor: 1 }, allowedTatami: [14, 16, 18] },
+      { match: { type: "寝室", floor: 2, role: "main" }, allowedTatami: [6, 7, 8] }
+    ]
   }
 ];
