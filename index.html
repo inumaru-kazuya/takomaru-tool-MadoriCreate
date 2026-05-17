@@ -370,11 +370,21 @@
     padding: 14px;
     position: relative;
   }
+  /* 出力パネル内の余分な横はみ出しを防ぐ(SVGは .floor-block 内でスクロール) */
+  .panel.output-panel { min-width: 0; overflow-x: hidden; }
+  /* ツールバーを上端に固定し、スクロール中でも操作可能に */
+  .actions {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(245, 241, 232, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding-top: 4px; padding-bottom: 4px;
+  }
   .zoom-ctrl {
     display: inline-flex; gap: 0;
     border: 0.5px solid var(--ink); border-radius: 2px;
-    margin-left: auto;
     background: var(--bg);
+    flex-shrink: 0;
   }
   .zoom-ctrl .zoom-btn, .zoom-ctrl .zoom-pct {
     background: transparent; border: 0; cursor: pointer;
