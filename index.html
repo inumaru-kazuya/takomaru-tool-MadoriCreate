@@ -894,17 +894,18 @@ function setZoom(z) {
 function zoomIn()  { setZoom(state.zoom * ZOOM_STEP); }
 function zoomOut() { setZoom(state.zoom / ZOOM_STEP); }
 function zoomReset() { setZoom(1.0); }
-// 表示中の SVG が「.floor-block」の利用可能幅に収まる倍率に自動調整
+// 表示中の SVG が「.panel.output-panel」の利用可能幅に収まる倍率に自動調整
+// 拡大方向には適用しない(小さなテンプレを無駄に大きくしない;上限 1.0)
 function zoomFitWidth() {
   if (!state.workingTemplate) return;
   const t = state.workingTemplate;
   const wrap = document.querySelector(".panel.output-panel");
   if (!wrap) return;
   const availW = Math.max(400, wrap.clientWidth - 60); // 60px padding/border 分を控除
-  // renderFloor の totalW = buildingW + padding*2; padding ≈ 30 + 4*scale + extents
   // 概算: totalW ≈ gridW * scale + 200 と仮定して逆算
   const target = (availW - 200) / t.landGridW;
-  setZoom(target / GRID_PX);
+  const targetZoom = target / GRID_PX;
+  setZoom(Math.min(1.0, targetZoom));
 }
 
 // 部屋追加時のデフォルトサイズ(グリッド)
@@ -2214,7 +2215,9 @@ function generate() {
     state.exclusionReasons = null;
     loadCandidateAsWorking(0);
   }
-  renderOutput();
+  // 生成直後は全体像が見えるよう自動でフィット倍率を適用
+  // (zoomFitWidth が setZoom 経由で renderOutput を呼ぶ)
+  zoomFitWidth();
   updateOptionStatus();
 }
 
